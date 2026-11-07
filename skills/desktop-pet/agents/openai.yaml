@@ -1,0 +1,4 @@
+interface:
+  display_name: "Desktop Pet"
+  short_description: "Build macOS desktop pets with Electron and transparent windows"
+  default_prompt: "Use $desktop-pet to build a macOS desktop pet from these character images."
