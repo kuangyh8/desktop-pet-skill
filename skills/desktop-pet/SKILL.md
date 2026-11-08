@@ -21,6 +21,7 @@ Build macOS desktop pets as a transparent, frameless, always-on-top Electron win
 - Electron 45 ships a lazy binary; have `start.sh` run `node node_modules/electron/install.js` when `dist/Electron.app` is missing.
 - Do not use `-webkit-app-region: drag`. It swallows `contextmenu`, so right-click stops working. Drive dragging over IPC and open the menu from the renderer's `contextmenu` event.
 - Float over fullscreen apps with `setAlwaysOnTop(true, 'screen-saver')` plus `setVisibleOnAllWorkspaces(true, { visibleOnFullScreen: true, skipTransformProcessType: true })`.
+- Make transparent areas click-through with `setIgnoreMouseEvents(true, { forward: true })` plus renderer-side per-pixel alpha sampling; the recipe is in the macOS reference.
 - Vision-based background removal must run outside an app sandbox (ANE and CoreVideo are blocked inside sandboxed commands), and Swift needs an Xcode SDK plus a writable `-module-cache-path`.
 
 Read the two reference files for concrete recipes. `scripts/cutout.swift` is the reusable background-removal tool.

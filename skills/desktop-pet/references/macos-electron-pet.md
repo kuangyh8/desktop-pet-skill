@@ -178,3 +178,26 @@ Add `--check` and `--snapshot` modes:
   exits. Confirm the PNG is nonblank and its corners have alpha 0.
 
 Both modes create the window with `show: false`; the window never needs to be visible.
+
+## Per-Pixel Mouse Passthrough
+
+A transparent window still intercepts clicks across its whole rectangle. Let clicks fall
+through the empty surround and only react on the character:
+
+- Start with `mainWindow.setIgnoreMouseEvents(true, { forward: true })`. `forward` keeps
+  `mousemove` events flowing while ignoring, so the renderer can re-enable interaction.
+- In the renderer, build a one-channel alpha mask per frame by drawing the image to an
+  offscreen canvas and reading `getImageData(...).data` (alpha is every fourth byte).
+- On `mousemove`, map the cursor into the frame's `object-fit: contain` content rect
+  (respecting `object-position: center bottom`), sample the alpha, and IPC back to main:
+
+```js
+ipcMain.on('pet:set-ignore-mouse', (_event, ignore) => {
+  mainWindow.setIgnoreMouseEvents(Boolean(ignore), { forward: Boolean(ignore) });
+});
+```
+
+- Only call `setIgnoreMouseEvents` when the state actually flips, and skip the hit test
+  while a drag is in flight so dragging is never interrupted.
+- Use a small alpha threshold (for example 8) so anti-aliased character edges still
+  respond, while the empty surround passes through to the desktop.
